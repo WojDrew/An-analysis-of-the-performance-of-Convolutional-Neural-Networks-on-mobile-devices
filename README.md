@@ -1,1 +1,3 @@
-Initial README
+****USAGE****
+
+`python ./main.py --help`
