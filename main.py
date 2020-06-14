@@ -1,6 +1,5 @@
 import click
-import tensorflow as tf
-
+import rasp
 
 @click.group()
 def cli():
@@ -17,7 +16,17 @@ def convert(input, output):
     open(output + "converted_model.tflite", "wb").write(tflite_model)
 
 
+@click.command()
+@click.option('-i', '--input', help='Input tensorflow lite model', required=True)
+def rasprun(input):
+    """To be used on a raspberry
+    Performs a single random inference
+    on a given model"""
+    rasp.run(input)
+
+    
 cli.add_command(convert)
+cli.add_command(rasprun)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,3 @@
 ****USAGE****
 
-`python ./main.py --help`
+`python3.7 ./main.py --help`
