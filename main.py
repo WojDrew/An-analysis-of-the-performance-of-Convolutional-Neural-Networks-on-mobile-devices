@@ -18,11 +18,12 @@ def convert(input, output):
 
 @click.command()
 @click.option('-i', '--input', help='Input tensorflow lite model', required=True)
-def rasprun(input):
+@click.option('-c', '--count', help='The number of inferences to perform')
+def rasprun(input, count):
     """To be used on a raspberry
     Performs a single random inference
     on a given model"""
-    rasp.run(input)
+    rasp.latency_test(input, count)
 
     
 cli.add_command(convert)
