@@ -28,7 +28,7 @@ def rasprun(input, count):
 @click.option('-i', '--input', help='Input tensorflow lite model', required=True)
 @click.option('-c', '--count', help='The number of inferences to perform for each class', required=True)
 @click.option('-d', '--dataset', help="Classes to test",
-              type=click.Choice(['leopards', 'lions', 'honeybee'], case_sensitive=False),
+              type=click.Choice(list(rasp.get_available_datasets().keys()) + ["ALL"], case_sensitive=False),
               multiple=True,
               required=True)
 @click.option('-v', '--verbose', is_flag=True)
