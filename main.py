@@ -20,9 +20,7 @@ def convert(input, output):
 @click.option('-i', '--input', help='Input tensorflow lite model', required=True)
 @click.option('-c', '--count', help='The number of inferences to perform')
 def rasprun(input, count):
-    """To be used on a raspberry
-    Performs a single random inference
-    on a given model"""
+    """Tests given model's latency"""
     rasp.latency_test(input, count)
 
 

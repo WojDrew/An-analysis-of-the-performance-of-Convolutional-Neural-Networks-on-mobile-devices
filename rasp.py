@@ -24,22 +24,22 @@ def latency_test(input, count):
     input_shape = input_details[0]['shape']
     output_details = interpreter.get_output_details()
 
-    output_file_name = input[:-6] + 'csv'
-    with open(output_file_name, mode='w') as results_file:
-        results_writer = csv.writer(results_file, delimiter=';')
-        results_writer.writerow([input])
+    output_file_name = input[:-6] + '_latency.csv'
 
-        for i in range(int(count)):
-            input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
-            t2 = time.time()
-            interpreter.set_tensor(input_details[0]['index'], input_data)
-            interpreter.invoke()
-            t3 = time.time()
+    write_line(input, filename=output_file_name)
+    write_line('Inference number', 'Inference Time', filename=output_file_name)
 
-            output_data = interpreter.get_tensor(output_details[0]['index'])
+    for i in range(int(count)):
+        input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
+        t2 = time.time()
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+        interpreter.invoke()
+        t3 = time.time()
 
-            results_writer.writerow([i, t3-t2])
-            print("Inference number ", i, " ", t3-t2)
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+
+        write_line(i, t3-t2, filename=output_file_name)
+        print("Inference number ", i, " ", t3-t2)
 
 
 def accuracy_test(input, num_of_inferences, classes_to_test, verbose):
@@ -56,6 +56,12 @@ def accuracy_test(input, num_of_inferences, classes_to_test, verbose):
     print("INPUT DETAILS:", input_details)
     print("INPUT SHAPE:", input_shape)
     print("INPUT TYPE:", input_type)
+
+    output_file_name = input[:-6] + '_latency.csv'
+
+    write_line(input, filename=output_file_name)
+    write_line('Inference number', 'Inference Time [ms]', 'Image label',
+               'Guessed class', 'Confidence [%]', filename=output_file_name)
 
     label_map = create_readable_names_for_imagenet_labels()
 
@@ -77,12 +83,16 @@ def accuracy_test(input, num_of_inferences, classes_to_test, verbose):
                 img = np.array(Image.open(image_file)
                                .resize(input_shape[1:3])).astype(input_type) / 128 - 1  # (-1, 1) normalization
 
+                t1 = time.time()
                 interpreter.set_tensor(input_details[0]['index'], img.reshape((1,) + img.shape))
                 interpreter.invoke()
+                t2 = time.time()
 
                 output_data = interpreter.get_tensor(output_details[0]['index'])
                 print(count, '\tTop 1 prediction: ', output_data.argmax(),
                       label_map[output_data.argmax()], output_data.max())
+
+                write_line(count, t2-t1, j, label_map[output_data.argmax()], output_data.max(), filename=output_file_name)
 
                 count = count + 1
             except Exception as e:
@@ -91,12 +101,24 @@ def accuracy_test(input, num_of_inferences, classes_to_test, verbose):
             if count is int(num_of_inferences):
                 break
 
+def write_line(*args, **kwargs):
+    filename = ''
+    for k, v in kwargs.items():
+        if k is 'filename':
+            filename = v
+
+    with open(filename, mode='a+') as results_file:
+        results_writer = csv.writer(results_file, delimiter=';')
+        results_writer.writerow(list(args))
+
 
 def get_available_datasets():
     return {
         "leopards": "http://image-net.org/api/text/imagenet.synset.geturls?wnid=n02128598",
         "lions": "http://image-net.org/api/text/imagenet.synset.geturls?wnid=n02129165",
-        "honeybee": "http://image-net.org/api/text/imagenet.synset.geturls?wnid=n02208280"
+        "honeybee": "http://image-net.org/api/text/imagenet.synset.geturls?wnid=n02208280",
+        "daisy": "http://image-net.org/api/text/imagenet.synset.geturls?wnid=n11939491",
+        "lemon": "http://image-net.org/api/text/imagenet.synset.geturls?wnid=n07749582"
     }
 
 
