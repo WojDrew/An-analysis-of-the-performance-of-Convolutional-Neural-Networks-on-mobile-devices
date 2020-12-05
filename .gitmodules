@@ -1,0 +1,3 @@
+[submodule "TFLiteAndroidApp"]
+	path = TFLiteAndroidApp
+	url = https://github.com/WojDrew/TFLiteAndroidApp.git
